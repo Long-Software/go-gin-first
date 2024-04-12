@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/xml"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type Response struct {
@@ -11,11 +11,19 @@ type Response struct {
 	data    any    `json:"data"`
 }
 
+type Recipe struct {
+	name         string    `json:"name"`
+	tags         []string  `json:"tags"`
+	ingredients  []string  `json:"ingredients"`
+	instructions []string  `json:"instructions"`
+	published_at time.Time `json:"published_at"`
+}
+
 func main() {
-	router := gin.Default()
-	router.GET("/", index)
-	router.GET("/:name", show)
-	router.Run(":8080")
+	r := gin.Default()
+	r.GET("/", index)
+	r.GET("/:name", show)
+	r.Run(":8080")
 }
 func index(c *gin.Context) {
 	responseWithSuccess(c, Response{code: 200, message: "hello"})
