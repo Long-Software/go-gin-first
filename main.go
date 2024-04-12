@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +13,8 @@ var recipes []Recipe
 
 func init() {
 	recipes = make([]Recipe, 0)
+	file, _ := os.ReadFile("recipes.json")
+	_ = json.Unmarshal([]byte(file), &recipes)
 }
 
 type Response struct {
@@ -28,19 +32,16 @@ type Recipe struct {
 
 func main() {
 	r := gin.Default()
-	r.GET("/", index)
-	r.GET("/:name", show)
+	// r.GET("/", index)
+	// r.GET("/:name", show)
+	r.GET("/recipes", RecipeIndex)
 	r.POST("/recipes", RecipeStore)
 	r.Run(":8080")
 }
-func index(c *gin.Context) {
-	responseWithSuccess(c, Response{code: 200, message: "hello"})
-}
-func show(c *gin.Context) {
-	name := c.Params.ByName("name")
-	responseWithSuccess(c, Response{code: 200, data: name})
-}
 
+func RecipeIndex(c *gin.Context) {
+	responseWithSuccess(c, Response{http.StatusOK, "", recipes})
+}
 func RecipeStore(c *gin.Context) {
 	var recipe Recipe
 	if err := c.ShouldBindJSON(&recipe); err != nil {
@@ -76,3 +77,11 @@ func responseWithError(c *gin.Context, res Response) {
 	// c.XML(res.code, response)
 	c.JSON(res.code, response)
 }
+
+// func index(c *gin.Context) {
+// 	responseWithSuccess(c, Response{code: 200, message: "hello"})
+// }
+// func show(c *gin.Context) {
+// 	name := c.Params.ByName("name")
+// 	responseWithSuccess(c, Response{code: 200, data: name})
+// }
